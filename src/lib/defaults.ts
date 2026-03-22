@@ -2,7 +2,6 @@ import type { LabelData } from "@/types/label";
 
 export function createLabel(overrides?: Partial<Omit<LabelData, "id">>): LabelData {
   return {
-    id: crypto.randomUUID(),
     title: "Nouvelle bougie",
     leftImage: "/images/rose.svg",
     rightImage: "/images/branch.svg",
@@ -14,6 +13,7 @@ export function createLabel(overrides?: Partial<Omit<LabelData, "id">>): LabelDa
     labelX: 35,
     labelY: 101,
     ...overrides,
+    id: crypto.randomUUID(),
   };
 }
 
