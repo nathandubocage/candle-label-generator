@@ -6,8 +6,9 @@ import {
   useEffect,
   useCallback,
   forwardRef,
-  type ReactNode,
 } from "react";
+import type { LabelData } from "@/types/label";
+import { LabelPreview } from "./LabelPreview";
 
 const A4_WIDTH = 794;
 const A4_HEIGHT = 1123;
@@ -32,24 +33,20 @@ const HANDLE_CURSORS: Record<Handle, string> = {
 };
 
 interface A4PageProps {
-  children: ReactNode;
-  labelX: number;
-  labelY: number;
-  labelWidth: number;
-  labelHeight: number;
-  onLabelChange: (x: number, y: number, w: number, h: number) => void;
+  labels: LabelData[];
+  selectedId: string;
+  onSelectLabel: (id: string) => void;
+  onLabelChange: (id: string, x: number, y: number, w: number, h: number) => void;
 }
 
 export const A4Page = forwardRef<HTMLDivElement, A4PageProps>(
-  function A4Page(
-    { children, labelX, labelY, labelWidth, labelHeight, onLabelChange },
-    ref,
-  ) {
+  function A4Page({ labels, selectedId, onSelectLabel, onLabelChange }, ref) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(0.5);
 
     const interaction = useRef<{
       type: "drag" | "resize";
+      labelId: string;
       handle?: Handle;
       mouseX: number;
       mouseY: number;
@@ -77,42 +74,46 @@ export const A4Page = forwardRef<HTMLDivElement, A4PageProps>(
     }, []);
 
     const startDrag = useCallback(
-      (e: React.MouseEvent) => {
+      (label: LabelData, e: React.MouseEvent) => {
         if (e.button !== 0) return;
         e.preventDefault();
+        e.stopPropagation();
+        onSelectLabel(label.id);
         interaction.current = {
           type: "drag",
+          labelId: label.id,
           mouseX: e.clientX,
           mouseY: e.clientY,
-          originX: labelX,
-          originY: labelY,
-          originW: labelWidth,
-          originH: labelHeight,
+          originX: label.labelX,
+          originY: label.labelY,
+          originW: label.labelWidth,
+          originH: label.labelHeight,
         };
         document.body.style.cursor = "grabbing";
         document.body.style.userSelect = "none";
       },
-      [labelX, labelY, labelWidth, labelHeight],
+      [onSelectLabel],
     );
 
     const startResize = useCallback(
-      (handle: Handle, e: React.MouseEvent) => {
+      (label: LabelData, handle: Handle, e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         interaction.current = {
           type: "resize",
+          labelId: label.id,
           handle,
           mouseX: e.clientX,
           mouseY: e.clientY,
-          originX: labelX,
-          originY: labelY,
-          originW: labelWidth,
-          originH: labelHeight,
+          originX: label.labelX,
+          originY: label.labelY,
+          originW: label.labelWidth,
+          originH: label.labelHeight,
         };
         document.body.style.cursor = HANDLE_CURSORS[handle];
         document.body.style.userSelect = "none";
       },
-      [labelX, labelY, labelWidth, labelHeight],
+      [],
     );
 
     useEffect(() => {
@@ -120,15 +121,14 @@ export const A4Page = forwardRef<HTMLDivElement, A4PageProps>(
         const i = interaction.current;
         if (!i) return;
 
-        const dxMm =
-          (e.clientX - i.mouseX) / scale / PX_PER_MM;
-        const dyMm =
-          (e.clientY - i.mouseY) / scale / PX_PER_MM;
+        const dxMm = (e.clientX - i.mouseX) / scale / PX_PER_MM;
+        const dyMm = (e.clientY - i.mouseY) / scale / PX_PER_MM;
 
         if (i.type === "drag") {
           const maxX = 210 - i.originW;
           const maxY = 297 - i.originH;
           onLabelChange(
+            i.labelId,
             Math.round(Math.max(0, Math.min(maxX, i.originX + dxMm))),
             Math.round(Math.max(0, Math.min(maxY, i.originY + dyMm))),
             i.originW,
@@ -138,8 +138,6 @@ export const A4Page = forwardRef<HTMLDivElement, A4PageProps>(
         }
 
         const h = i.handle!;
-        let x = i.originX;
-        let y = i.originY;
         let w = i.originW;
         let ht = i.originH;
 
@@ -151,13 +149,15 @@ export const A4Page = forwardRef<HTMLDivElement, A4PageProps>(
         w = Math.max(MIN_W, Math.min(MAX_W, w));
         ht = Math.max(MIN_H, Math.min(MAX_H, ht));
 
+        let x = i.originX;
+        let y = i.originY;
         if (h.includes("w")) x = i.originX + i.originW - w;
         if (h.includes("n")) y = i.originY + i.originH - ht;
 
         x = Math.max(0, Math.min(210 - w, x));
         y = Math.max(0, Math.min(297 - ht, y));
 
-        onLabelChange(Math.round(x), Math.round(y), Math.round(w), Math.round(ht));
+        onLabelChange(i.labelId, Math.round(x), Math.round(y), Math.round(w), Math.round(ht));
       };
 
       const onMouseUp = () => {
@@ -175,10 +175,6 @@ export const A4Page = forwardRef<HTMLDivElement, A4PageProps>(
       };
     }, [scale, onLabelChange]);
 
-    const leftPx = labelX * PX_PER_MM;
-    const topPx = labelY * PX_PER_MM;
-    const wPx = labelWidth * PX_PER_MM;
-    const hPx = labelHeight * PX_PER_MM;
     const hs = 12;
 
     return (
@@ -200,57 +196,68 @@ export const A4Page = forwardRef<HTMLDivElement, A4PageProps>(
           }}
           className="bg-white shadow-xl relative"
         >
-          {/* Label content (captured in PDF) */}
-          <div
-            style={{
-              position: "absolute",
-              left: leftPx,
-              top: topPx,
-            }}
-          >
-            {children}
-          </div>
+          {labels.map((label) => {
+            const leftPx = label.labelX * PX_PER_MM;
+            const topPx = label.labelY * PX_PER_MM;
+            const wPx = label.labelWidth * PX_PER_MM;
+            const hPx = label.labelHeight * PX_PER_MM;
+            const isSelected = label.id === selectedId;
 
-          {/* Interaction overlay (excluded from PDF) */}
-          <div
-            data-no-export
-            onMouseDown={startDrag}
-            style={{
-              position: "absolute",
-              left: leftPx - 1,
-              top: topPx - 1,
-              width: wPx + 2,
-              height: hPx + 2,
-              cursor: "grab",
-              border: "1.5px dashed #4A90D9",
-              boxSizing: "content-box",
-            }}
-          >
-            {(
-              ["nw", "n", "ne", "w", "e", "sw", "s", "se"] as Handle[]
-            ).map((h) => {
-              const pos = handlePosition(h, wPx + 2, hPx + 2, hs);
-              return (
+            return (
+              <div key={label.id}>
+                {/* Label content (captured in PDF) */}
+                <div style={{ position: "absolute", left: leftPx, top: topPx }}>
+                  <LabelPreview data={label} />
+                </div>
+
+                {/* Interaction overlay (excluded from PDF) */}
                 <div
-                  key={h}
-                  onMouseDown={(e) => startResize(h, e)}
+                  data-no-export
+                  onMouseDown={(e) => startDrag(label, e)}
                   style={{
                     position: "absolute",
-                    width: hs,
-                    height: hs,
-                    left: pos.left,
-                    top: pos.top,
-                    cursor: HANDLE_CURSORS[h],
-                    backgroundColor: "#fff",
-                    border: "1.5px solid #4A90D9",
-                    borderRadius: 2,
-                    transform: "translate(-50%, -50%)",
-                    zIndex: 10,
+                    left: leftPx - 1,
+                    top: topPx - 1,
+                    width: wPx + 2,
+                    height: hPx + 2,
+                    cursor: "grab",
+                    border: isSelected
+                      ? "1.5px dashed #4A90D9"
+                      : "1.5px dashed transparent",
+                    boxSizing: "content-box",
+                    zIndex: isSelected ? 20 : 10,
                   }}
-                />
-              );
-            })}
-          </div>
+                  onDoubleClick={() => onSelectLabel(label.id)}
+                >
+                  {isSelected &&
+                    (["nw", "n", "ne", "w", "e", "sw", "s", "se"] as Handle[]).map(
+                      (h) => {
+                        const pos = handlePosition(h, wPx + 2, hPx + 2);
+                        return (
+                          <div
+                            key={h}
+                            onMouseDown={(e) => startResize(label, h, e)}
+                            style={{
+                              position: "absolute",
+                              width: hs,
+                              height: hs,
+                              left: pos.left,
+                              top: pos.top,
+                              cursor: HANDLE_CURSORS[h],
+                              backgroundColor: "#fff",
+                              border: "1.5px solid #4A90D9",
+                              borderRadius: 2,
+                              transform: "translate(-50%, -50%)",
+                              zIndex: 30,
+                            }}
+                          />
+                        );
+                      },
+                    )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -261,7 +268,6 @@ function handlePosition(
   h: Handle,
   w: number,
   ht: number,
-  _hs: number,
 ): { left: number; top: number } {
   const mx = w / 2;
   const my = ht / 2;

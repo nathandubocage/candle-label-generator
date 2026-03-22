@@ -1,4 +1,5 @@
 export interface LabelData {
+  id: string;
   title: string;
   leftImage: string | null;
   rightImage: string | null;

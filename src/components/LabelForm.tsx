@@ -4,18 +4,36 @@ import { useRef } from "react";
 import type { LabelData } from "@/types/label";
 
 interface LabelFormProps {
-  data: LabelData;
-  onChange: (data: LabelData) => void;
+  labels: LabelData[];
+  selectedId: string;
+  onSelectLabel: (id: string) => void;
+  onUpdateLabel: (data: LabelData) => void;
+  onAddLabel: () => void;
+  onDuplicateLabel: (id: string) => void;
+  onRemoveLabel: (id: string) => void;
   onExport: () => void;
   exporting: boolean;
 }
 
-export function LabelForm({ data, onChange, onExport, exporting }: LabelFormProps) {
+export function LabelForm({
+  labels,
+  selectedId,
+  onSelectLabel,
+  onUpdateLabel,
+  onAddLabel,
+  onDuplicateLabel,
+  onRemoveLabel,
+  onExport,
+  exporting,
+}: LabelFormProps) {
   const leftInputRef = useRef<HTMLInputElement>(null);
   const rightInputRef = useRef<HTMLInputElement>(null);
 
+  const data = labels.find((l) => l.id === selectedId);
+  if (!data) return null;
+
   const update = (partial: Partial<LabelData>) => {
-    onChange({ ...data, ...partial });
+    onUpdateLabel({ ...data, ...partial });
   };
 
   const handleImage =
@@ -49,6 +67,60 @@ export function LabelForm({ data, onChange, onExport, exporting }: LabelFormProp
         <p className="text-sm text-stone-500 mt-1">
           Éditeur d&apos;étiquettes pour bougies artisanales
         </p>
+      </div>
+
+      {/* Label list */}
+      <div className="px-6 py-4 border-b border-stone-200 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-amber-800 uppercase tracking-wider">
+            Étiquettes ({labels.length})
+          </span>
+          <div className="flex gap-1.5">
+            <button
+              onClick={() => onDuplicateLabel(selectedId)}
+              title="Dupliquer l'étiquette sélectionnée"
+              className="px-2.5 py-1 text-xs rounded border border-stone-300 text-stone-600 hover:bg-stone-50 transition-colors cursor-pointer"
+            >
+              Dupliquer
+            </button>
+            <button
+              onClick={onAddLabel}
+              title="Ajouter une nouvelle étiquette"
+              className="px-2.5 py-1 text-xs rounded bg-amber-700 text-white hover:bg-amber-800 transition-colors cursor-pointer"
+            >
+              + Ajouter
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {labels.map((label) => (
+            <button
+              key={label.id}
+              onClick={() => onSelectLabel(label.id)}
+              className={`group relative pl-3 pr-7 py-1.5 text-sm rounded-lg border transition-colors cursor-pointer ${
+                label.id === selectedId
+                  ? "border-amber-600 bg-amber-50 text-amber-900"
+                  : "border-stone-300 text-stone-600 hover:border-stone-400 hover:bg-stone-50"
+              }`}
+            >
+              <span className="truncate max-w-[120px] inline-block align-middle">
+                {label.title || "Sans nom"}
+              </span>
+              {labels.length > 1 && (
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveLabel(label.id);
+                  }}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 transition-all"
+                >
+                  ×
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Form body */}
