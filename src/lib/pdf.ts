@@ -10,6 +10,7 @@ export async function exportToPdf(
   clone.style.position = "absolute";
   clone.style.left = "-9999px";
   clone.style.top = "0px";
+  clone.querySelectorAll("[data-no-export]").forEach((el) => el.remove());
   document.body.appendChild(clone);
 
   try {

@@ -44,7 +44,7 @@ export function LabelForm({ data, onChange, onExport, exporting }: LabelFormProp
           className="text-xl font-semibold text-stone-800"
           style={{ fontFamily: "var(--font-playfair)" }}
         >
-          Bougie Label Maker
+          Candle Label Generator
         </h1>
         <p className="text-sm text-stone-500 mt-1">
           Éditeur d&apos;étiquettes pour bougies artisanales

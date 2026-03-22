@@ -47,8 +47,14 @@ export default function Home() {
           labelY={labelData.labelY}
           labelWidth={labelData.labelWidth}
           labelHeight={labelData.labelHeight}
-          onPositionChange={(x, y) =>
-            setLabelData((prev) => ({ ...prev, labelX: x, labelY: y }))
+          onLabelChange={(x, y, w, h) =>
+            setLabelData((prev) => ({
+              ...prev,
+              labelX: x,
+              labelY: y,
+              labelWidth: w,
+              labelHeight: h,
+            }))
           }
         >
           <LabelPreview data={labelData} />

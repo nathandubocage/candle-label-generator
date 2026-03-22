@@ -24,7 +24,7 @@ const garamond = EB_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Bougie Label Maker",
+  title: "Candle Label Generator",
   description: "Générateur d'étiquettes pour bougies artisanales",
 };
 
