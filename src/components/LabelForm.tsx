@@ -203,6 +203,28 @@ export function LabelForm({
           </Field>
         </Section>
 
+        {/* Section: Orientation */}
+        <Section title="Orientation">
+          <div className="flex gap-2">
+            {([0, 90, 180, 270] as const).map((deg) => (
+              <button
+                key={deg}
+                type="button"
+                onClick={() => update({ rotation: deg })}
+                title={`Rotation ${deg}°`}
+                className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer flex flex-col items-center gap-1 ${
+                  data.rotation === deg
+                    ? "border-amber-600 bg-amber-50 text-amber-900"
+                    : "border-stone-300 text-stone-600 hover:border-stone-400 hover:bg-stone-50"
+                }`}
+              >
+                <RotationIcon deg={deg} />
+                <span className="text-xs">{deg}°</span>
+              </button>
+            ))}
+          </div>
+        </Section>
+
         {/* Section: Dimensions */}
         <Section title="Dimensions de l'étiquette">
           <Field label={`Largeur : ${data.labelWidth} mm`}>
@@ -322,6 +344,23 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <label className="block text-sm font-medium text-stone-600 mb-1">{label}</label>
       {children}
     </div>
+  );
+}
+
+function RotationIcon({ deg }: { deg: 0 | 90 | 180 | 270 }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      style={{ transform: `rotate(${deg}deg)`, transition: "transform 0.2s" }}
+    >
+      {/* Rectangle représentant l'étiquette */}
+      <rect x="3" y="6" width="14" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      {/* Flèche vers le haut indiquant l'orientation */}
+      <path d="M10 5.5 L10 2 M10 2 L8 4 M10 2 L12 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 

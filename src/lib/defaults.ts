@@ -12,6 +12,7 @@ export function createLabel(overrides?: Partial<Omit<LabelData, "id">>): LabelDa
     labelHeight: 95,
     labelX: 35,
     labelY: 101,
+    rotation: 0,
     ...overrides,
     id: crypto.randomUUID(),
   };

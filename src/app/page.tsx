@@ -65,6 +65,15 @@ export default function Home() {
     [labels],
   );
 
+  const handleRotateLabel = useCallback(
+    (id: string, rotation: 0 | 90 | 180 | 270) => {
+      setLabels((prev) =>
+        prev.map((l) => (l.id === id ? { ...l, rotation } : l)),
+      );
+    },
+    [],
+  );
+
   const handleRemoveLabel = useCallback(
     (id: string) => {
       setLabels((prev) => {
@@ -102,6 +111,7 @@ export default function Home() {
           selectedId={selectedId}
           onSelectLabel={setSelectedId}
           onLabelChange={handleLabelChange}
+          onRotateLabel={handleRotateLabel}
         />
       </main>
     </div>

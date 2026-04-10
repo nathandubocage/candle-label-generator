@@ -10,4 +10,5 @@ export interface LabelData {
   labelHeight: number;
   labelX: number;
   labelY: number;
+  rotation: 0 | 90 | 180 | 270;
 }
