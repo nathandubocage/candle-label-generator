@@ -104,10 +104,11 @@ export function LabelPreview({ data }: LabelPreviewProps) {
           {/* Title */}
           <span
             style={{
-              fontFamily: "var(--font-playfair)",
+              fontFamily: "var(--font-boston-angel)",
               fontSize: fs(28),
               color: "#3C3C3C",
               whiteSpace: "nowrap",
+              letterSpacing: px(1.1),
               lineHeight: 1.2,
               flexShrink: 0,
               padding: `0 ${px(4)}px`,
@@ -144,9 +145,9 @@ export function LabelPreview({ data }: LabelPreviewProps) {
         {/* "Fait main en France" */}
         <span
           style={{
-            fontFamily: "var(--font-sacramento)",
+            fontFamily: "var(--font-great-vibes)",
             fontSize: fs(18),
-            color: "#B87333",
+            color: "#bd8e89",
             marginTop: px(0),
             lineHeight: 1.2,
           }}
@@ -157,6 +158,7 @@ export function LabelPreview({ data }: LabelPreviewProps) {
         {/* Specs line */}
         <span
           style={{
+            fontFamily: "var(--font-carollo-plays)",
             fontSize: fs(14),
             color: "#3C3C3C",
             marginTop: px(2),
@@ -188,9 +190,10 @@ export function LabelPreview({ data }: LabelPreviewProps) {
         {/* P102 safety notice */}
         <div
           style={{
+            fontFamily: "var(--font-bebas-neue)",
             fontSize: fs(9),
             fontWeight: 700,
-            color: "#3C3C3C",
+            color: "#bd8e89",
             textTransform: "uppercase",
             textAlign: "center",
             letterSpacing: px(0.4),
@@ -203,6 +206,7 @@ export function LabelPreview({ data }: LabelPreviewProps) {
         {/* Ingredients */}
         <div
           style={{
+            fontFamily: "var(--font-alice)",
             width: "100%",
             marginTop: px(3),
             fontSize: fs(8.5),
@@ -213,7 +217,7 @@ export function LabelPreview({ data }: LabelPreviewProps) {
         >
           <span
             style={{
-              color: "#B87333",
+              color: "#bd8e89",
               fontWeight: 700,
               textDecoration: "underline",
               textUnderlineOffset: px(1.5),
@@ -227,6 +231,7 @@ export function LabelPreview({ data }: LabelPreviewProps) {
         {/* Allergy warning */}
         <div
           style={{
+            fontFamily: "var(--font-alice)",
             width: "100%",
             marginTop: px(2),
             fontSize: fs(8.5),
@@ -245,9 +250,10 @@ export function LabelPreview({ data }: LabelPreviewProps) {
         {/* CLP regulation */}
         <div
           style={{
+            fontFamily: "var(--font-bebas-neue)",
             fontSize: fs(7.5),
             fontWeight: 700,
-            color: "#B87333",
+            color: "#bd8e89",
             textTransform: "uppercase",
             textAlign: "center",
             letterSpacing: px(0.3),
@@ -260,6 +266,7 @@ export function LabelPreview({ data }: LabelPreviewProps) {
         {/* Contact info */}
         <div
           style={{
+            fontFamily: "var(--font-alice)",
             fontSize: fs(7.5),
             color: "#3C3C3C",
             textAlign: "center",
